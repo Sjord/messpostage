@@ -1,0 +1,20 @@
+{
+    "version": "0.0.1",
+    "manifest_version": 2,
+    "name": "MessPostage",
+    "description": "Notify user of postMessage messages and handlers",
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "all_frames": true
+        }
+    ],
+    "icons": {
+        "48": "no_message_48.png"
+    }
+}
