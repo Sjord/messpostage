@@ -10,19 +10,22 @@
         });
     });
 
+    window.addEventListener("messageListenerDetected", function (evt) {
+        chrome.runtime.sendMessage({
+            "type": "listener",
+            "listener": evt.detail
+        });
+    });
+
     /* Add a override.js to the page to override addEventListener */
     function overrideFunctions() {
         let addEventListenerOrig = window.addEventListener;
         window.addEventListener = function(type, listener, useCapture, wantsUntrusted) {
             if (type == "message") {
-                console.log("hiero");
-                chrome.runtime.sendMessage("nekmcedlnlncblgjfkopjlbeeijcnmgd", {
-                    type: "listener",
-                    listener: {
-                        hello: "world"
-                        /*location: new Error("message handler added").stack*/
-                    }
-                }, {});
+                let evt = new CustomEvent("messageListenerDetected", {detail: {
+                    stack: new Error().stack
+                }});
+                window.dispatchEvent(evt);
             }
             return addEventListenerOrig.call(this, type, listener, useCapture, wantsUntrusted);
         };
