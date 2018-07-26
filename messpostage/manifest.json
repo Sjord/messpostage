@@ -1,5 +1,5 @@
 {
-    "version": "0.0.3",
+    "version": "0.0.4",
     "manifest_version": 2,
     "name": "MessPostage",
     "description": "Notify user of postMessage messages and handlers",
@@ -19,6 +19,7 @@
         "scripts": ["background.js"]
     },
     "browser_action": {
+        "browser_style": true,
         "default_title": "No messages detected",
         "default_popup": "popup.html",
         "default_icon": {
