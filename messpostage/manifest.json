@@ -28,5 +28,8 @@
     },
     "icons": {
         "48": "no_message_48.png"
-    }
+    },
+    "permissions": [
+        "webNavigation"
+    ]
 }

@@ -10,13 +10,17 @@
     */
     var tabData = new Map();
 
+    function resetDataForTab(tabId) {
+        tabData.set(tabId, {
+            "messages": [],
+            "listeners": [],
+            "unread": 0
+        });
+    }
+
     function getDataForTab(tabId) {
         if (!tabData.has(tabId)) {
-            tabData.set(tabId, {
-                "messages": [],
-                "listeners": [],
-                "unread": 0
-            });
+            resetDataForTab(tabId);
         }
 
         return tabData.get(tabId);
@@ -78,7 +82,14 @@
     });
 
     chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-        // Clean up this tab's data.
+        // Tab has been closed. Clean up this tab's data.
         tabData.delete(tabId);
+    });
+
+    chrome.webNavigation.onCommitted.addListener(function (details) {
+        // We browsed to another page. Reset this tab's data.
+        let tabId = details.tabId;
+        resetDataForTab(tabId);
+        updateToolbarIcon(0);
     });
 })();
