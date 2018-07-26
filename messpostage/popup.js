@@ -1,4 +1,6 @@
 (function () {
+    "use strict";
+
     function trim_stack(stack) {
         var lines = stack.split('\n');
         lines = lines.slice(1);
