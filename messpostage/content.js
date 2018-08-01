@@ -1,7 +1,13 @@
 (function () {
     "use strict";
 
-    let securityToken = JSON.stringify(crypto.getRandomValues(new Uint16Array(10)));
+    function randomString() {
+        return JSON.stringify(crypto.getRandomValues(new Uint16Array(16)));
+    }
+
+    /* Event name for when addEventListener("message") was called.
+       This is random for security, so that webpages can't spoof such an event. */
+    const eventName = "messpostage-messageListenerDetected-" + randomString();
 
     /* Pass messages sent to this frame to the background script */
     window.addEventListener("message", function (message) {
@@ -14,23 +20,20 @@
         });
     });
 
-    window.addEventListener("messageListenerDetected", function (evt) {
-        if (evt.detail.securityToken === securityToken) {
-            chrome.runtime.sendMessage({
-                "type": "listener",
-                "listener": evt.detail
-            });
-        }
+    window.addEventListener(eventName, function (evt) {
+        chrome.runtime.sendMessage({
+            "type": "listener",
+            "listener": evt.detail
+        });
     });
 
-    /* Add a override.js to the page to override addEventListener */
-    function overrideFunctions(securityToken) {
+    /* Add a override function to the page to override addEventListener */
+    function overrideFunctions(eventName) {
         let addEventListenerOrig = window.addEventListener;
         window.addEventListener = function(type, listener, useCapture, wantsUntrusted) {
-            if (type == "message") {
-                let evt = new CustomEvent("messageListenerDetected", {detail: {
-                    stack: new Error().stack,
-                    securityToken: securityToken
+            if (type === "message") {
+                let evt = new CustomEvent(eventName, {detail: {
+                    stack: new Error().stack
                 }});
                 window.dispatchEvent(evt);
             }
@@ -39,7 +42,7 @@
     };
 
     var s = document.createElement('script');
-    s.innerText = '(' + overrideFunctions + ')(' + JSON.stringify(securityToken) + ');'
+    s.innerText = '(' + overrideFunctions + ')(' + JSON.stringify(eventName) + ');'
     s.onload = function() {
         this.remove();
     };
