@@ -88,8 +88,11 @@
 
     chrome.webNavigation.onCommitted.addListener(function (details) {
         // We browsed to another page. Reset this tab's data.
-        let tabId = details.tabId;
-        resetDataForTab(tabId);
-        updateToolbarIcon(0);
+        const isTopLevel = details.frameId === 0;
+        if (isTopLevel) {
+            const tabId = details.tabId;
+            resetDataForTab(tabId);
+            updateToolbarIcon(0);
+        }
     });
 })();
