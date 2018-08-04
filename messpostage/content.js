@@ -39,10 +39,10 @@
             }
             return addEventListenerOrig.call(this, type, listener, useCapture, wantsUntrusted);
         };
-    };
+    }
 
-    var s = document.createElement('script');
-    s.innerText = '(' + overrideFunctions + ')(' + JSON.stringify(eventName) + ');'
+    const s = document.createElement("script");
+    s.innerText = "(" + overrideFunctions + ")(" + JSON.stringify(eventName) + ");";
     s.onload = function() {
         this.remove();
     };

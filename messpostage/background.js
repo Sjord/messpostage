@@ -8,7 +8,7 @@
             "unread": 0
         }
     */
-    var tabData = new Map();
+    const tabData = new Map();
 
     function resetDataForTab(tabId) {
         tabData.set(tabId, {
@@ -81,7 +81,7 @@
         updateToolbarIcon(currentTabData.unread);
     });
 
-    chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+    chrome.tabs.onRemoved.addListener(function (tabId) {
         // Tab has been closed. Clean up this tab's data.
         tabData.delete(tabId);
     });

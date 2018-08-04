@@ -1,22 +1,22 @@
 (function () {
     "use strict";
 
-    function trim_stack(stack) {
-        var lines = stack.split('\n');
+    function trimStack(stack) {
+        let lines = stack.split("\n");
         lines = lines.slice(1);
-        return lines.join('\n');
+        return lines.join("\n");
     }
 
-    function render_listeners(target, listeners) {
+    function renderListeners(target, listeners) {
         for (let i in listeners) {
             let listener = listeners[i];
             let listenerDiv = document.createElement("div");
-            listenerDiv.innerText = trim_stack(listener.stack);
+            listenerDiv.innerText = trimStack(listener.stack);
             target.appendChild(listenerDiv);
         }
     }
 
-    function render_messages(target, messages) {
+    function renderMessages(target, messages) {
         for (let i in messages) {
             let message = messages[i];
             let messageDiv = document.createElement("div");
@@ -26,7 +26,7 @@
     }
 
     chrome.runtime.sendMessage({type: "requestMessages"}, function(response) {
-        render_messages(document.getElementById("messages"), response.messages);
-        render_listeners(document.getElementById("listeners"), response.listeners);
+        renderMessages(document.getElementById("messages"), response.messages);
+        renderListeners(document.getElementById("listeners"), response.listeners);
     });
 })();
