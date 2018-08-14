@@ -18,6 +18,13 @@
         });
     }
 
+    function resetMessagesForTab(tabId) {
+        let currentData = getDataForTab(tabId);
+        currentData.messages = [];
+        currentData.unread = 0;
+        tabData.set(tabId, currentData);
+    }
+
     function getDataForTab(tabId) {
         if (!tabData.has(tabId)) {
             resetDataForTab(tabId);
@@ -59,7 +66,16 @@
                 sendResponse(currentTabData);
             });
             return true;
-        } else {
+        } else if (request.type === "clearMessages") {            
+            chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+                let currentTab = tabs[0];                
+                resetMessagesForTab(currentTab.id);
+                updateToolbarIcon(0);
+                sendResponse(getDataForTab(currentTab.id));   
+            });
+            return true;                     
+        }
+        else {
             // The content script informed us that it has found postMessage activity.
             let senderTabData = getDataForTab(sender.tab.id);
 

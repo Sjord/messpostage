@@ -8,6 +8,7 @@
     }
 
     function renderListeners(target, listeners) {
+        target.innerHTML  = '';
         for (let i in listeners) {
             let listener = listeners[i];
             let listenerDiv = document.createElement("div");
@@ -17,6 +18,7 @@
     }
 
     function renderMessages(target, messages) {
+        target.innerHTML  = '';
         for (let i in messages) {
             let message = messages[i];
             let messageDiv = document.createElement("div");
@@ -24,6 +26,17 @@
             target.appendChild(messageDiv);
         }
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var link = document.getElementById('clearButton');
+        // onClick's logic below:
+        link.addEventListener('click', function() {
+            chrome.runtime.sendMessage({type: "clearMessages"}, function(response) {
+                renderMessages(document.getElementById("messages"), response.messages);
+                renderListeners(document.getElementById("listeners"), response.listeners);
+            });
+        });
+    });
 
     chrome.runtime.sendMessage({type: "requestMessages"}, function(response) {
         renderMessages(document.getElementById("messages"), response.messages);
