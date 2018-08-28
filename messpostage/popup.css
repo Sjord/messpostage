@@ -5,6 +5,9 @@ img {
     height: 16px;
     margin: 2px;
 }
+table {
+    border-collapse: collapse;
+}
 tr {
     vertical-align: top;
 }
@@ -14,7 +17,8 @@ tr:nth-child(even) {
 tr:hover {
     background-color: #f2fafe;
 }
-.details {
+td {
+    padding: 3px;
 }
 .details div {
     max-height: 5em;
