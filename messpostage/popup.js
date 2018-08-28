@@ -1,11 +1,33 @@
 (function () {
     "use strict";
 
-    // Remove the first line of a stack trace
-    function trimStack(stack) {
-        let lines = stack.split("\n");
-        lines = lines.slice(1);
-        return lines.join("\n");
+    class Item {
+        constructor(data) {
+            Object.assign(this, data);
+        }
+
+        image() {
+            return this.item.type + ".svg";
+        }
+    }
+
+    class Message extends Item {
+        details() {
+            return JSON.stringify(this.data, null, 2);
+        }
+    }
+
+    class Listener extends Item {
+        // Remove the first line of a stack trace
+        trimStack(stack) {
+            let lines = stack.split("\n");
+            lines = lines.slice(1);
+            return lines.join("\n");
+        }
+
+        details() {
+            return this.trimStack(this.stack);
+        }
     }
 
     class ItemRow {
@@ -14,14 +36,12 @@
         }
 
         view() {
-            return m("div", {"class": "itemrow"}, [
-                m("img", {
+            return m("tr", {"class": "itemrow"}, [
+                m("td", m("img", {
                     title: this.item.type,
                     src: this.item.type + ".svg"
-                }),
-                m("span", {
-                    "class": "message-data"
-                }, JSON.stringify(this.item))
+                })),
+                m("td", {"class": "details"}, this.item.details()),
             ]);
         }
     }
@@ -33,7 +53,7 @@
         }
 
         view() {
-            return this.data.map(msg => m(new ItemRow(msg)));
+            return m("table", this.data.map(msg => m(new ItemRow(msg))));
         }
     }
 
@@ -44,11 +64,18 @@
         });
     }
 
+    // Returns a list of Message and Listener objects.
+    function convertItemsToObjects(itemData) {
+        const classes = {"message": Message, "listener": Listener};
+        return itemData.map(data => new classes[data.type](data));
+    }
+
     // Render the data response we got from the background page.
     function displayResponse(response) {
+        const items = convertItemsToObjects(response.items);
         m.render(document.body, [
             m("button", {onclick: clearMessages}, "clear"),
-            m(new ResultList(response.items, JSON.stringify)),
+            m(new ResultList(items, JSON.stringify)),
         ]);
     }
 
