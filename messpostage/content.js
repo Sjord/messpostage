@@ -12,8 +12,9 @@
     /* Pass messages sent to this frame to the background script */
     window.addEventListener("message", function (message) {
         chrome.runtime.sendMessage({
-            "type": "message",
-            "message": {
+            "type": "foundItem",
+            "item": {
+                type: "message",
                 data: message.data,
                 origin: message.origin
             }
@@ -22,8 +23,11 @@
 
     window.addEventListener(eventName, function (evt) {
         chrome.runtime.sendMessage({
-            "type": "listener",
-            "listener": evt.detail
+            "type": "foundItem",
+            "item": Object.assign(
+                {type: "listener"},
+                evt.detail
+            )
         });
     });
 

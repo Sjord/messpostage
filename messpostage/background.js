@@ -3,26 +3,15 @@
 
     /*
         tabId → {
-            "messages": [...]
-            "listeners": [...]
-            "unread": 0
+            "items": [...]
         }
     */
     const tabData = new Map();
 
     function resetDataForTab(tabId) {
         tabData.set(tabId, {
-            "messages": [],
-            "listeners": [],
-            "unread": 0
+            "items": [],
         });
-    }
-
-    function resetMessagesForTab(tabId) {
-        let currentData = getDataForTab(tabId);
-        currentData.messages = [];
-        currentData.unread = 0;
-        tabData.set(tabId, currentData);
     }
 
     function getDataForTab(tabId) {
@@ -69,32 +58,26 @@
         } else if (request.type === "clearMessages") {            
             chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
                 let currentTab = tabs[0];                
-                resetMessagesForTab(currentTab.id);
+                resetDataForTab(currentTab.id);
                 updateToolbarIcon(0);
                 sendResponse(getDataForTab(currentTab.id));   
             });
             return true;                     
-        }
-        else {
+        } else if (request.type === "foundItem") {
             // The content script informed us that it has found postMessage activity.
             let senderTabData = getDataForTab(sender.tab.id);
 
-            if (request.type === "message") {
-                senderTabData.messages.push(request.message);
-                senderTabData.unread += 1;
-                updateToolbarIcon(senderTabData.unread);
-            } else if (request.type === "listener") {
-                senderTabData.listeners.push(request.listener);
-                senderTabData.unread += 1;
-                updateToolbarIcon(senderTabData.unread);
-            }
+            senderTabData.items.push(request.item);
+            updateToolbarIcon(senderTabData.items.length);
+        } else {
+            throw `Unsupported message ${request.type}`;
         }
     });
 
     chrome.tabs.onActivated.addListener(function (activeTab) {
         // The user switched to this tab. Show the corresponding data on the toolbar icon.
         let currentTabData = getDataForTab(activeTab.tabId);
-        updateToolbarIcon(currentTabData.unread);
+        updateToolbarIcon(currentTabData.items.length);
     });
 
     chrome.tabs.onRemoved.addListener(function (tabId) {

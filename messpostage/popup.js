@@ -30,11 +30,8 @@
     // Render the data response we got from the background page.
     function displayResponse(response) {
         m.render(document.body, [
-            m("h1", "messages"),
             m("button", {onclick: clearMessages}, "clear"),
-            m(new ResultList(response.messages, JSON.stringify)),
-            m("h1", "listeners"),
-            m(new ResultList(response.listeners, l => trimStack(l.stack)))
+            m(new ResultList(response.items, JSON.stringify)),
         ]);
     }
 
