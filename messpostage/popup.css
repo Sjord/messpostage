@@ -1,4 +1,30 @@
-div {
-    border: solid #ccc 1px;
-    padding: 2px;
+body {
+    min-width: 30em;
+}
+img {
+    height: 16px;
+    margin: 2px;
+}
+table {
+    border-collapse: collapse;
+}
+tr {
+    vertical-align: top;
+}
+tr:nth-child(even) {
+    background-color: #f4f4f4;
+}
+tr:hover {
+    background-color: #f2fafe;
+}
+td {
+    padding: 3px;
+}
+.details div {
+    max-height: 5em;
+    overflow: hidden;
+    white-space: pre;
+}
+.expanded .details div {
+    max-height: none;
 }

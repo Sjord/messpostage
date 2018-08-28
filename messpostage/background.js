@@ -3,26 +3,17 @@
 
     /*
         tabId → {
-            "messages": [...]
-            "listeners": [...]
-            "unread": 0
+            "items": [...],
+            "persist": false
         }
     */
     const tabData = new Map();
 
     function resetDataForTab(tabId) {
         tabData.set(tabId, {
-            "messages": [],
-            "listeners": [],
-            "unread": 0
+            "items": [],
+            "persist": false
         });
-    }
-
-    function resetMessagesForTab(tabId) {
-        let currentData = getDataForTab(tabId);
-        currentData.messages = [];
-        currentData.unread = 0;
-        tabData.set(tabId, currentData);
     }
 
     function getDataForTab(tabId) {
@@ -57,44 +48,50 @@
         }
     }
 
+    function runForCurrentTab(callback) {
+        chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
+            callback(tabs[0]);
+        });
+    }
+
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         if (request.type === "requestMessages") {
             // The popup asks for postMessage activity.
-            chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
-                let currentTab = tabs[0];
+            runForCurrentTab(currentTab => {
                 let currentTabData = getDataForTab(currentTab.id);
                 sendResponse(currentTabData);
             });
             return true;
         } else if (request.type === "clearMessages") {            
-            chrome.tabs.query({currentWindow: true, active: true}, function (tabs) {
-                let currentTab = tabs[0];                
-                resetMessagesForTab(currentTab.id);
+            runForCurrentTab(currentTab => {
+                resetDataForTab(currentTab.id);
                 updateToolbarIcon(0);
                 sendResponse(getDataForTab(currentTab.id));   
             });
             return true;                     
-        }
-        else {
+        } else if (request.type === "foundItem") {
             // The content script informed us that it has found postMessage activity.
             let senderTabData = getDataForTab(sender.tab.id);
 
-            if (request.type === "message") {
-                senderTabData.messages.push(request.message);
-                senderTabData.unread += 1;
-                updateToolbarIcon(senderTabData.unread);
-            } else if (request.type === "listener") {
-                senderTabData.listeners.push(request.listener);
-                senderTabData.unread += 1;
-                updateToolbarIcon(senderTabData.unread);
-            }
+            senderTabData.items.push(request.item);
+            updateToolbarIcon(senderTabData.items.length);
+        } else if (request.type === "setPersist") {
+            // Should we clear everything when navigating to another page?
+            runForCurrentTab(currentTab => {
+                let currentTabData = getDataForTab(currentTab.id);
+                currentTabData.persist = request.value;
+                sendResponse(currentTabData);
+            });
+            return true;
+        } else {
+            throw `Unsupported message ${request.type}`;
         }
     });
 
     chrome.tabs.onActivated.addListener(function (activeTab) {
         // The user switched to this tab. Show the corresponding data on the toolbar icon.
         let currentTabData = getDataForTab(activeTab.tabId);
-        updateToolbarIcon(currentTabData.unread);
+        updateToolbarIcon(currentTabData.items.length);
     });
 
     chrome.tabs.onRemoved.addListener(function (tabId) {
@@ -107,8 +104,11 @@
         const isTopLevel = details.frameId === 0;
         if (isTopLevel) {
             const tabId = details.tabId;
-            resetDataForTab(tabId);
-            updateToolbarIcon(0);
+            const tabData = getDataForTab(tabId);
+            if (!tabData.persist) {
+                resetDataForTab(tabId);
+                updateToolbarIcon(0);
+            }
         }
     });
 })();
