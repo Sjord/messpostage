@@ -36,12 +36,15 @@
         }
 
         view() {
-            return m("tr", {"class": "itemrow"}, [
+            return m("tr", {
+                "class": "itemrow",
+                onclick: e => e.currentTarget.classList.toggle("expanded")
+            }, [
                 m("td", m("img", {
                     title: this.item.type,
                     src: this.item.type + ".svg"
                 })),
-                m("td", {"class": "details"}, this.item.details()),
+                m("td", {"class": "details"}, m("div", this.item.details())),
             ]);
         }
     }
@@ -75,7 +78,7 @@
         const items = convertItemsToObjects(response.items);
         m.render(document.body, [
             m("button", {onclick: clearMessages}, "clear"),
-            m(new ResultList(items, JSON.stringify)),
+            m(new ResultList(items)),
         ]);
     }
 

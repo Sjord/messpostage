@@ -15,5 +15,12 @@ tr:hover {
     background-color: #f2fafe;
 }
 .details {
+}
+.details div {
+    max-height: 5em;
+    overflow: hidden;
     white-space: pre;
+}
+.expanded .details div {
+    max-height: none;
 }
