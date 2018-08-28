@@ -30,6 +30,7 @@
         }
     }
 
+    // Table row displaying an item.
     class ItemRow {
         constructor(item) {
             this.item = item;
@@ -60,6 +61,37 @@
         }
     }
 
+    function setPersist(value) {
+        chrome.runtime.sendMessage({type: "setPersist", value: value}, function(response) {
+            displayResponse(response);
+        });
+    }
+
+    // Bar with buttons at the top of the popup page.
+    class Toolbar {
+        constructor(persist) {
+            this.persist = persist;
+        }
+
+        view() {
+            const checkbox = m("input", {
+                type: "checkbox",
+                onchange: m.withAttr("checked", setPersist)
+            });
+            if (this.persist) {
+                checkbox.attrs.checked = "checked";
+            }
+
+            return m("div", {"class": "toolbar"}, [
+                m("button", {title: "Clear", onclick: clearMessages}, "clear"),
+                m("label", {title: "Don't clear messages each time you navigate to a new page"}, [
+                    checkbox,
+                    "Persist logs"
+                ])
+            ]);
+        }
+    }
+
     // Ask to clear the message list and rerender.
     function clearMessages() {
         chrome.runtime.sendMessage({type: "clearMessages"}, function(response) {
@@ -77,7 +109,7 @@
     function displayResponse(response) {
         const items = convertItemsToObjects(response.items);
         m.render(document.body, [
-            m("button", {onclick: clearMessages}, "clear"),
+            m(new Toolbar(response.persist)),
             m(new ResultList(items)),
         ]);
     }
