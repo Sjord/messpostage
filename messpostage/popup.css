@@ -2,3 +2,6 @@ div {
     border: solid #ccc 1px;
     padding: 2px;
 }
+img {
+    height: 16px;
+}

@@ -8,15 +8,32 @@
         return lines.join("\n");
     }
 
-    // Component that calls stringifier on each data element.
-    class ResultList {
-        constructor(data, stringifier) {
-            this.data = data;
-            this.stringifier = stringifier;
+    class ItemRow {
+        constructor(item) {
+            this.item = item;
         }
 
         view() {
-            return this.data.map(msg => m("div", this.stringifier(msg)));
+            return m("div", {"class": "itemrow"}, [
+                m("img", {
+                    title: this.item.type,
+                    src: this.item.type + ".svg"
+                }),
+                m("span", {
+                    "class": "message-data"
+                }, JSON.stringify(this.item))
+            ]);
+        }
+    }
+
+    // Component that contains the correct type of row for each item.
+    class ResultList {
+        constructor(data) {
+            this.data = data;
+        }
+
+        view() {
+            return this.data.map(msg => m(new ItemRow(msg)));
         }
     }
 
