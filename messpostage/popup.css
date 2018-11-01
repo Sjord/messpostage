@@ -1,5 +1,6 @@
 body {
     min-width: 30em;
+    -moz-user-select: text;
 }
 img {
     height: 16px;

@@ -1,5 +1,5 @@
 {
-    "version": "0.0.6",
+    "version": "0.0.7",
     "manifest_version": 2,
     "name": "MessPostage",
     "description": "Notify user of postMessage messages and handlers",
